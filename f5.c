@@ -1,90 +1,166 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Defining Student structure
+// Defining the Student structure
 struct Student {
     int rollNo;
     char name[30];
-    int numSubjects;
-    float *marks;
+    float marks;
 };
 
-// Function to calculate average marks of a student
-float getAverage(struct Student *s) {
-    float sum = 0.0;
-    int i;
-    for (i = 0; i < s->numSubjects; i++) {
-        sum += s->marks[i];
-    }
-    return (s->numSubjects > 0) ? (sum / s->numSubjects) : 0.0;
-}
+// Function prototypes
+void addStudent(struct Student **students, int *count, int *capacity);
+void displayStudents(const struct Student *students, int count);
+void searchStudent(const struct Student *students, int count);
+void updateStudent(struct Student *students, int count);
 
 int main() {
-    int n, i, j, topperIndex = 0;
-    float highestAvg = -1.0;
-    struct Student *students;
+    struct Student *students = NULL;
+    int count = 0;
+    int capacity = 0;
+    int choice;
 
     // Header with student info and separator
     printf("Name: Vishnoi Amit \t Entry No: 25BCM051\n");
-    printf("----------------------------------------\n");
+    printf("----------------------------------------\n\n");
 
-    printf("Enter number of students: ");
-    scanf("%d", &n);
+    do {
+        printf("\n====== STUDENT MANAGEMENT SYSTEM ======\n");
+        printf("1. Add Student\n");
+        printf("2. Display All Students\n");
+        printf("3. Search Student by Roll No\n");
+        printf("4. Update Student Details\n");
+        printf("5. Exit\n");
+        printf("---------------------------------------\n");
+        printf("Enter your choice (1-5): ");
+        scanf("%d", &choice);
 
-    // Dynamic allocation for n students
-    students = (struct Student *)malloc(n * sizeof(struct Student));
-    if (students == NULL) {
-        printf("Memory allocation failed!\n");
-        return 1;
-    }
-
-    // Reading details and calculating topper
-    for (i = 0; i < n; i++) {
-        printf("\nEnter details for Student %d:\n", i + 1);
-        printf("Enter Roll Number: ");
-        scanf("%d", &students[i].rollNo);
-
-        printf("Enter Name: ");
-        scanf(" %[^\n]", students[i].name);
-
-        printf("Enter Number of Subjects: ");
-        scanf("%d", &students[i].numSubjects);
-
-        students[i].marks = (float *)malloc(students[i].numSubjects * sizeof(float));
-        if (students[i].marks == NULL) {
-            printf("Memory allocation failed for student %d!\n", i + 1);
-            return 1;
+        switch (choice) {
+            case 1:
+                addStudent(&students, &count, &capacity);
+                break;
+            case 2:
+                displayStudents(students, count);
+                break;
+            case 3:
+                searchStudent(students, count);
+                break;
+            case 4:
+                updateStudent(students, count);
+                break;
+            case 5:
+                printf("\nReleasing allocated memory and exiting...\n");
+                free(students);
+                students = NULL;
+                printf("Memory cleanup successful. Program terminated.\n");
+                break;
+            default:
+                printf("Invalid choice! Please select an option between 1 and 5.\n");
         }
-
-        printf("Enter marks for %d subjects:\n", students[i].numSubjects);
-        for (j = 0; j < students[i].numSubjects; j++) {
-            printf("Subject %d: ", j + 1);
-            scanf("%f", &students[i].marks[j]);
-        }
-
-        float avg = getAverage(&students[i]);
-        if (avg > highestAvg) {
-            highestAvg = avg;
-            topperIndex = i;
-        }
-    }
-
-    // Display topper details
-    printf("\n================ CLASS TOPPER ================\n");
-    printf("Roll No         : %d\n", students[topperIndex].rollNo);
-    printf("Name            : %s\n", students[topperIndex].name);
-    printf("Number of Marks : %d\n", students[topperIndex].numSubjects);
-    printf("Marks List      : ");
-    for (j = 0; j < students[topperIndex].numSubjects; j++) {
-        printf("%.2f ", students[topperIndex].marks[j]);
-    }
-    printf("\nHighest Average : %.2f\n", highestAvg);
-
-    // Freeing memory in correct order
-    for (i = 0; i < n; i++) {
-        free(students[i].marks);
-    }
-    free(students);
+    } while (choice != 5);
 
     return 0;
+}
+
+// Function to add a student record dynamically
+void addStudent(struct Student **students, int *count, int *capacity) {
+    if (*count == *capacity) {
+        int newCapacity = (*capacity == 0) ? 2 : (*capacity * 2);
+        struct Student *temp = (struct Student *)realloc(*students, newCapacity * sizeof(struct Student));
+        if (temp == NULL) {
+            printf("Memory allocation failed!\n");
+            return;
+        }
+        *students = temp;
+        *capacity = newCapacity;
+    }
+
+    struct Student *newEntry = *students + *count;
+
+    printf("\nEnter Roll Number: ");
+    scanf("%d", &newEntry->rollNo);
+
+    printf("Enter Name: ");
+    scanf(" %[^\n]", newEntry->name);
+
+    printf("Enter Marks: ");
+    scanf("%f", &newEntry->marks);
+
+    (*count)++;
+    printf("Record added successfully!\n");
+}
+
+// Function to display all student records
+void displayStudents(const struct Student *students, int count) {
+    if (count == 0) {
+        printf("\nNo student records found.\n");
+        return;
+    }
+
+    printf("\n================ ALL STUDENT RECORDS ================\n");
+    printf("%-10s %-25s %-10s\n", "Roll No", "Name", "Marks");
+    printf("----------------------------------------------------\n");
+    for (int i = 0; i < count; i++) {
+        printf("%-10d %-25s %-10.2f\n", (students + i)->rollNo, (students + i)->name, (students + i)->marks);
+    }
+}
+
+// Function to search a record by roll number
+void searchStudent(const struct Student *students, int count) {
+    if (count == 0) {
+        printf("\nNo student records to search.\n");
+        return;
+    }
+
+    int targetRoll, found = 0;
+    printf("\nEnter Roll Number to search: ");
+    scanf("%d", &targetRoll);
+
+    for (int i = 0; i < count; i++) {
+        if ((students + i)->rollNo == targetRoll) {
+            printf("\n--- Match Found ---\n");
+            printf("Roll No : %d\n", (students + i)->rollNo);
+            printf("Name    : %s\n", (students + i)->name);
+            printf("Marks   : %.2f\n", (students + i)->marks);
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found) {
+        printf("Student with Roll Number %d not found.\n", targetRoll);
+    }
+}
+
+// Function to update an existing student record
+void updateStudent(struct Student *students, int count) {
+    if (count == 0) {
+        printf("\nNo student records available to update.\n");
+        return;
+    }
+
+    int targetRoll, found = 0;
+    printf("\nEnter Roll Number of student to update: ");
+    scanf("%d", &targetRoll);
+
+    for (int i = 0; i < count; i++) {
+        if ((students + i)->rollNo == targetRoll) {
+            printf("\nCurrent Record: Roll No: %d, Name: %s, Marks: %.2f\n",
+                   (students + i)->rollNo, (students + i)->name, (students + i)->marks);
+
+            printf("Enter Updated Name: ");
+            scanf(" %[^\n]", (students + i)->name);
+
+            printf("Enter Updated Marks: ");
+            scanf("%f", &(students + i)->marks);
+
+            printf("Record updated successfully!\n");
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found) {
+        printf("Student with Roll Number %d not found.\n", targetRoll);
+    }
 }

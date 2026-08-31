@@ -1,77 +1,53 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-// Defining Student structure with dynamic marks pointer
+// Defining the Student structure
 struct Student {
     int rollNo;
     char name[30];
-    int numSubjects;
-    float *marks;
+    float marks;
 };
 
+// Function that receives a pointer to the Student structure and updates marks
+void updateMarks(struct Student *s, float newMarks) {
+    s->marks = newMarks;
+}
+
 int main() {
-    int n, i, j;
-    struct Student *students;
+    struct Student s;
+    float newMarks;
 
     // Header with student info and separator
     printf("Name: Vishnoi Amit \t Entry No: 25BCM051\n");
     printf("----------------------------------------\n\n");
 
-    printf("Enter number of students: ");
-    scanf("%d", &n);
+    // Reading initial student details
+    printf("Enter Roll Number: ");
+    scanf("%d", &s.rollNo);
 
-    // 1. Allocate dynamic array for n students
-    students = (struct Student *)malloc(n * sizeof(struct Student));
-    if (students == NULL) {
-        printf("Outer memory allocation failed!\n");
-        return 1;
-    }
+    printf("Enter Name: ");
+    scanf(" %[^\n]", s.name);
 
-    // 2. Read details and allocate inner dynamic marks array per student
-    for (i = 0; i < n; i++) {
-        printf("\nEnter details for Student %d:\n", i + 1);
-        printf("Enter Roll Number: ");
-        scanf("%d", &students[i].rollNo);
+    printf("Enter Initial Marks: ");
+    scanf("%f", &s.marks);
 
-        printf("Enter Name: ");
-        scanf(" %[^\n]", students[i].name);
+    // Displaying details before function call
+    printf("\n--- Before Function Call ---\n");
+    printf("Roll No : %d\n", s.rollNo);
+    printf("Name    : %s\n", s.name);
+    printf("Marks   : %.2f\n", s.marks);
 
-        printf("Enter Number of Subjects: ");
-        scanf("%d", &students[i].numSubjects);
+    // Reading new marks to update
+    printf("\nEnter New Marks to Update: ");
+    scanf("%f", &newMarks);
 
-        students[i].marks = (float *)malloc(students[i].numSubjects * sizeof(float));
-        if (students[i].marks == NULL) {
-            printf("Inner memory allocation failed for student %d!\n", i + 1);
-            return 1;
-        }
+    // Calling the function by passing the address
+    updateMarks(&s, newMarks);
 
-        printf("Enter marks for %d subjects:\n", students[i].numSubjects);
-        for (j = 0; j < students[i].numSubjects; j++) {
-            printf("Subject %d: ", j + 1);
-            scanf("%f", &students[i].marks[j]);
-        }
-    }
-
-    // 3. Display all student records
-    printf("\n================ ALL STUDENT PERFORMANCE REPORTS ================\n");
-    for (i = 0; i < n; i++) {
-        float total = 0.0;
-        printf("\nStudent %d:\n", i + 1);
-        printf("Roll No  : %d\n", students[i].rollNo);
-        printf("Name     : %s\n", students[i].name);
-        printf("Marks    : ");
-        for (j = 0; j < students[i].numSubjects; j++) {
-            printf("%.2f ", students[i].marks[j]);
-            total += students[i].marks[j];
-        }
-        printf("\nAverage  : %.2f\n", total / students[i].numSubjects);
-    }
-
-    // 4. Free memory in proper order (Inner then Outer)
-    for (i = 0; i < n; i++) {
-        free(students[i].marks);
-    }
-    free(students);
+    // Displaying details after function call
+    printf("\n--- After Function Call ---\n");
+    printf("Roll No : %d\n", s.rollNo);
+    printf("Name    : %s\n", s.name);
+    printf("Marks   : %.2f\n", s.marks);
 
     return 0;
 }

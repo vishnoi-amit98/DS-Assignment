@@ -5,79 +5,62 @@
 struct Student {
     int rollNo;
     char name[30];
-    int numSubjects;
-    float *marks;
+    float marks;
 };
 
 int main() {
-    struct Student s;
-    int extra, i, totalSubjects;
-    float *temp;
+    int n, i, searchRoll, found = 0;
+    struct Student *students;
 
     // Header with student info and separator
     printf("Name: Vishnoi Amit \t Entry No: 25BCM051\n");
     printf("----------------------------------------\n\n");
 
-    // Reading initial details
-    printf("Enter Roll Number: ");
-    scanf("%d", &s.rollNo);
+    printf("Enter number of students: ");
+    scanf("%d", &n);
 
-    printf("Enter Name: ");
-    scanf(" %[^\n]", s.name);
-
-    printf("Enter Initial Number of Subjects: ");
-    scanf("%d", &s.numSubjects);
-
-    // Initial allocation using malloc
-    s.marks = (float *)malloc(s.numSubjects * sizeof(float));
-    if (s.marks == NULL) {
+    // Dynamic memory allocation for n student records
+    students = (struct Student *)malloc(n * sizeof(struct Student));
+    if (students == NULL) {
         printf("Memory allocation failed!\n");
         return 1;
     }
 
-    // Input initial marks
-    printf("Enter marks for initial %d subjects:\n", s.numSubjects);
-    for (i = 0; i < s.numSubjects; i++) {
-        printf("Subject %d: ", i + 1);
-        scanf("%f", &s.marks[i]);
+    // Input records
+    for (i = 0; i < n; i++) {
+        printf("\nEnter details for Student %d:\n", i + 1);
+        printf("Enter Roll Number: ");
+        scanf("%d", &students[i].rollNo);
+
+        printf("Enter Name: ");
+        scanf(" %[^\n]", students[i].name);
+
+        printf("Enter Marks: ");
+        scanf("%f", &students[i].marks);
     }
 
-    // Input extra subjects to add
-    printf("\nEnter number of additional subjects to add: ");
-    scanf("%d", &extra);
+    // Input target roll number
+    printf("\nEnter Roll Number to search: ");
+    scanf("%d", &searchRoll);
 
-    totalSubjects = s.numSubjects + extra;
-
-    // Resizing dynamic memory using realloc
-    temp = (float *)realloc(s.marks, totalSubjects * sizeof(float));
-    if (temp == NULL) {
-        printf("Memory reallocation failed!\n");
-        free(s.marks);
-        return 1;
+    // Searching within the dynamic array
+    for (i = 0; i < n; i++) {
+        if (students[i].rollNo == searchRoll) {
+            printf("\n--- Student Found ---\n");
+            printf("Roll No : %d\n", students[i].rollNo);
+            printf("Name    : %s\n", students[i].name);
+            printf("Marks   : %.2f\n", students[i].marks);
+            found = 1;
+            break;
+        }
     }
-    s.marks = temp;
 
-    // Input marks for newly added subjects
-    printf("Enter marks for %d additional subjects:\n", extra);
-    for (i = s.numSubjects; i < totalSubjects; i++) {
-        printf("Subject %d: ", i + 1);
-        scanf("%f", &s.marks[i]);
+    if (!found) {
+        printf("\nStudent with Roll Number %d not found.\n", searchRoll);
     }
-    s.numSubjects = totalSubjects;
 
-    // Displaying complete updated record
-    printf("\n--- Updated Student Profile ---\n");
-    printf("Roll No         : %d\n", s.rollNo);
-    printf("Name            : %s\n", s.name);
-    printf("Total Subjects  : %d\n", s.numSubjects);
-    printf("All Marks       : ");
-    for (i = 0; i < s.numSubjects; i++) {
-        printf("%.2f ", s.marks[i]);
-    }
-    printf("\n");
-
-    // Freeing memory
-    free(s.marks);
+    // Deallocate heap memory
+    free(students);
 
     return 0;
 }

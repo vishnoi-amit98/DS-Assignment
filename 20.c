@@ -1,39 +1,42 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Defining the Student structure with dynamic member
 struct Student {
     int rollNo;
-    float *marks;
+    int numSubjects;
+    float *marks; // Dynamic array of marks
 };
 
 int main() {
-    struct Student s;
-
-    // Header with student info and separator
     printf("Name: Vishnoi Amit \t Entry No: 25BCM051\n");
     printf("----------------------------------------\n\n");
 
+    struct Student s;
     s.rollNo = 101;
+    s.numSubjects = 3;
 
-    // Dynamically allocating memory on the heap
-    s.marks = (float *)malloc(sizeof(float));
+    // Allocate memory for 3 subjects
+    s.marks = (float *)malloc(s.numSubjects * sizeof(float));
 
     if (s.marks == NULL) {
         printf("Memory allocation failed!\n");
         return 1;
     }
 
-    *s.marks = 91.5f;
+    s.marks[0] = 85.5f;
+    s.marks[1] = 90.0f;
+    s.marks[2] = 94.5f;
 
     printf("Roll No: %d\n", s.rollNo);
-    printf("Marks  : %.2f\n", *s.marks);
+    for (int i = 0; i < s.numSubjects; i++) {
+        printf("Subject %d Marks: %.2f\n", i + 1, s.marks[i]);
+    }
 
-    // Deallocating heap memory to prevent memory leak
+    // Free the dynamically allocated array
     free(s.marks);
-    s.marks = NULL; // Good practice to avoid dangling pointer
+    s.marks = NULL;
 
-    printf("\nMemory successfully released using free().\n");
+    printf("\nMemory successfully freed.\n");
 
     return 0;
 }
